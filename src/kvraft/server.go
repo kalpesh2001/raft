@@ -3,8 +3,9 @@ package kvraft
 import (
 	"../labgob"
 	"../labrpc"
-	"log"
 	"../raft"
+	"fmt"
+	"log"
 	"sync"
 	"sync/atomic"
 )
@@ -18,32 +19,190 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	OpName    string
+	Record    KV
+	RequestID int64
+}
+
+type KV struct {
+	Key   string
+	Value string
+}
+
+//Only required for this server
+type Request struct {
+	Term   int
+	Index  int
+	Status string
 }
 
 type KVServer struct {
-	mu      sync.Mutex
-	me      int
-	rf      *raft.Raft
-	applyCh chan raft.ApplyMsg
-	dead    int32 // set by Kill()
-
-	maxraftstate int // snapshot if log grows this big
-
+	mu           sync.Mutex
+	cond         *sync.Cond
+	requests     map[int64]Request
+	me           int
+	rf           *raft.Raft
+	applyCh      chan raft.ApplyMsg
+	dead         int32 // set by Kill()
+	maxraftstate int   // snapshot if log grows this big
+	kvDB         map[string]string
+	completed    map[int64]string
 	// Your definitions here.
 }
 
-
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
+	index, term, isLeader := kv.rf.Start(Op{"Get", KV{args.Key, " "}, args.RequestID})
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	kv.mu.Lock()
+	kv.requests[args.RequestID] = Request{term, index, "running"}
+	kv.mu.Unlock()
+	kv.mu.Lock()
+
+	for request := kv.requests[args.RequestID]; request.Status == "running"; request = kv.requests[args.RequestID] {
+		kv.cond.Wait()
+	}
+	if kv.requests[args.RequestID].Status == "Resubmit" {
+		reply.Err = ErrWrongLeader
+		delete(kv.requests, args.RequestID)
+		kv.mu.Unlock()
+		return
+	}
+	if kv.requests[args.RequestID].Status == "Done" {
+		ret, ok := kv.kvDB[args.Key]
+		delete(kv.requests, args.RequestID)
+		kv.mu.Unlock()
+		if ok {
+			reply.Err = OK
+			reply.Value = ret
+		} else {
+			reply.Err = ErrNoKey
+			reply.Value = ret
+		}
+		//Add code to delete from requests delete(requests, index)
+		return
+	}
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
-	// Your code here.
+	index, term, isLeader := kv.rf.Start(Op{args.Op, KV{args.Key, args.Value}, args.RequestID})
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	//fmt.Println("KV: Received: Operation: Index: Server:", args.Op, index, kv.me)
+	kv.mu.Lock()
+	kv.requests[args.RequestID] = Request{term, index, "running"}
+	kv.mu.Unlock()
+	kv.mu.Lock()
+
+	for request := kv.requests[args.RequestID]; request.Status == "running"; request = kv.requests[args.RequestID] {
+		kv.cond.Wait()
+	}
+	if kv.requests[args.RequestID].Status == "Resubmit" {
+		reply.Err = ErrWrongLeader
+		kv.mu.Unlock()
+		delete(kv.requests, args.RequestID)
+		return
+	}
+	if kv.requests[args.RequestID].Status == "Done" {
+		delete(kv.requests, args.RequestID)
+		kv.mu.Unlock()
+		reply.Err = OK
+		return
+	}
+}
+
+func (kv *KVServer) getMessage() {
+	var oldTerm, newTerm int
+	for {
+		message := <-kv.applyCh
+		if message.CommandValid {
+			retCommand := message.Command.(Op)
+			newTerm = message.CommandTerm
+			if newTerm != oldTerm {
+				kv.processOldRequests(oldTerm)
+				oldTerm = newTerm
+			}
+			if retCommand.OpName == "Put" {
+				kv.mu.Lock()
+				_, ok := kv.completed[retCommand.RequestID]
+				if ok {
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				} else {
+					kv.completed[retCommand.RequestID] = "Done"
+					kv.kvDB[retCommand.Record.Key] = retCommand.Record.Value
+					fmt.Println("KV# Put Key: Value: Server:", retCommand.Record.Key, kv.kvDB[retCommand.Record.Key], kv.me)
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				}
+			}
+			if retCommand.OpName == "Append" {
+				kv.mu.Lock()
+				_, ok := kv.completed[retCommand.RequestID]
+				if ok {
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				} else {
+					kv.completed[retCommand.RequestID] = "Done"
+					current := kv.kvDB[retCommand.Record.Key]
+					kv.kvDB[retCommand.Record.Key] = current + retCommand.Record.Value
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				}
+
+			}
+			if retCommand.OpName == "Get" {
+				kv.mu.Lock()
+				_, ok := kv.completed[retCommand.RequestID]
+				if ok {
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				} else {
+					kv.completed[retCommand.RequestID] = "Done"
+					temp := kv.requests[retCommand.RequestID]
+					temp.Status = "Done"
+					kv.requests[retCommand.RequestID] = temp
+					kv.cond.Broadcast()
+					kv.mu.Unlock()
+				}
+			}
+		}
+	}
+}
+func (kv *KVServer) processOldRequests(oldTerm int) {
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+	for requestID, request := range kv.requests {
+		if request.Term <= oldTerm {
+			request.Status = "Resubmit"
+			kv.requests[requestID] = request
+			kv.cond.Broadcast()
+		}
+	}
 }
 
 //
@@ -96,6 +255,10 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
-
+	kv.kvDB = make(map[string]string)
+	kv.cond = sync.NewCond(&kv.mu)
+	kv.requests = make(map[int64]Request)
+	kv.completed = make(map[int64]string)
+	go kv.getMessage()
 	return kv
 }

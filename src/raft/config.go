@@ -189,7 +189,9 @@ func (cfg *config) start1(i int) {
 				cfg.mu.Unlock()
 
 				if m.CommandIndex > 1 && prevok == false {
+					fmt.Println("Prev. Command:", cfg.logs[i])
 					err_msg = fmt.Sprintf("server %v apply out of order %v", i, m.CommandIndex)
+
 				}
 			}
 
@@ -199,6 +201,7 @@ func (cfg *config) start1(i int) {
 				// keep reading after error so that Raft doesn't block
 				// holding locks...
 			}
+			//fmt.Println("Logs Without error: Server:", i, cfg.logs[i])
 		}
 	}()
 
@@ -233,7 +236,7 @@ func (cfg *config) cleanup() {
 
 // attach server i to the net.
 func (cfg *config) connect(i int) {
-	// fmt.Printf("connect(%d)\n", i)
+	fmt.Printf("connect(%d)\n", i)
 
 	cfg.connected[i] = true
 
@@ -256,7 +259,7 @@ func (cfg *config) connect(i int) {
 
 // detach server i from the net.
 func (cfg *config) disconnect(i int) {
-	// fmt.Printf("disconnect(%d)\n", i)
+	fmt.Printf("disconnect(%d)\n", i)
 
 	cfg.connected[i] = false
 
@@ -370,6 +373,7 @@ func (cfg *config) nCommitted(index int) (int, interface{}) {
 
 		cfg.mu.Lock()
 		cmd1, ok := cfg.logs[i][index]
+		//fmt.Println("Cmd and ok:", cmd1, ok)
 		cfg.mu.Unlock()
 
 		if ok {
@@ -444,19 +448,22 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 			if rf != nil {
 				index1, _, ok := rf.Start(cmd)
 				if ok {
+					fmt.Println("Index value from Config: Server", index1, starts)
 					index = index1
 					break
 				}
 			}
 		}
-
+		//fmt.Println("Config: Leader:", index)
 		if index != -1 {
 			// somebody claimed to be the leader and to have
 			// submitted our command; wait a while for agreement.
 			t1 := time.Now()
 			for time.Since(t1).Seconds() < 2 {
 				nd, cmd1 := cfg.nCommitted(index)
+				//fmt.Println("Config:", index)
 				if nd > 0 && nd >= expectedServers {
+					//fmt.Println("output from config: nd is:", nd)
 					// committed
 					if cmd1 == cmd {
 						// and it was the command we submitted.
