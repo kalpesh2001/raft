@@ -4,6 +4,7 @@ import (
 	"../labgob"
 	"../labrpc"
 	"../raft"
+	"bytes"
 	"fmt"
 	"log"
 	"sync"
@@ -51,6 +52,8 @@ type KVServer struct {
 	maxraftstate int   // snapshot if log grows this big
 	kvDB         map[string]string
 	completed    map[int64]string
+	persister    *raft.Persister
+	peers        []*labrpc.ClientEnd
 	// Your definitions here.
 }
 
@@ -121,73 +124,88 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 }
 
 func (kv *KVServer) getMessage() {
-	var oldTerm, newTerm int
+	var oldTerm, newTerm, lastIndex int
 	for {
+		raftStateSize := kv.persister.RaftStateSize()
+		if raftStateSize > kv.maxraftstate {
+			kv.mu.Lock()
+			kv.rf.TrimLog(lastIndex, kv.persist()) //TO DO: Find index of last request processed
+			kv.mu.Unlock()
+		}
 		message := <-kv.applyCh
-		if message.CommandValid {
-			retCommand := message.Command.(Op)
-			newTerm = message.CommandTerm
-			if newTerm != oldTerm {
-				kv.processOldRequests(oldTerm)
-				oldTerm = newTerm
-			}
-			if retCommand.OpName == "Put" {
-				kv.mu.Lock()
-				_, ok := kv.completed[retCommand.RequestID]
-				if ok {
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
-				} else {
-					kv.completed[retCommand.RequestID] = "Done"
-					kv.kvDB[retCommand.Record.Key] = retCommand.Record.Value
-					fmt.Println("KV# Put Key: Value: Server:", retCommand.Record.Key, kv.kvDB[retCommand.Record.Key], kv.me)
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
-				}
-			}
-			if retCommand.OpName == "Append" {
-				kv.mu.Lock()
-				_, ok := kv.completed[retCommand.RequestID]
-				if ok {
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
-				} else {
-					kv.completed[retCommand.RequestID] = "Done"
-					current := kv.kvDB[retCommand.Record.Key]
-					kv.kvDB[retCommand.Record.Key] = current + retCommand.Record.Value
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
-				}
+		if message.MessageType == 1 {
+			kvBytes := message.Command.([]byte)
+			kv.mu.Lock()
+			kv.kvDB, kv.completed = kv.readPersist(kvBytes)
+			kv.mu.Unlock()
+		} else if message.MessageType == 0 {
 
-			}
-			if retCommand.OpName == "Get" {
-				kv.mu.Lock()
-				_, ok := kv.completed[retCommand.RequestID]
-				if ok {
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
-				} else {
-					kv.completed[retCommand.RequestID] = "Done"
-					temp := kv.requests[retCommand.RequestID]
-					temp.Status = "Done"
-					kv.requests[retCommand.RequestID] = temp
-					kv.cond.Broadcast()
-					kv.mu.Unlock()
+			if message.CommandValid {
+				retCommand := message.Command.(Op)
+				lastIndex = message.CommandIndex
+				newTerm = message.CommandTerm
+				if newTerm != oldTerm {
+					kv.processOldRequests(oldTerm)
+					oldTerm = newTerm
+				}
+				if retCommand.OpName == "Put" {
+					kv.mu.Lock()
+					_, ok := kv.completed[retCommand.RequestID]
+					if ok {
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					} else {
+						kv.completed[retCommand.RequestID] = "Done"
+						kv.kvDB[retCommand.Record.Key] = retCommand.Record.Value
+						fmt.Println("KV# Put Key: Value: Server:", retCommand.Record.Key, kv.kvDB[retCommand.Record.Key], kv.me)
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					}
+				}
+				if retCommand.OpName == "Append" {
+					kv.mu.Lock()
+					_, ok := kv.completed[retCommand.RequestID]
+					if ok {
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					} else {
+						kv.completed[retCommand.RequestID] = "Done"
+						current := kv.kvDB[retCommand.Record.Key]
+						kv.kvDB[retCommand.Record.Key] = current + retCommand.Record.Value
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					}
+
+				}
+				if retCommand.OpName == "Get" {
+					kv.mu.Lock()
+					_, ok := kv.completed[retCommand.RequestID]
+					if ok {
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					} else {
+						kv.completed[retCommand.RequestID] = "Done"
+						temp := kv.requests[retCommand.RequestID]
+						temp.Status = "Done"
+						kv.requests[retCommand.RequestID] = temp
+						kv.cond.Broadcast()
+						kv.mu.Unlock()
+					}
 				}
 			}
 		}
@@ -203,6 +221,29 @@ func (kv *KVServer) processOldRequests(oldTerm int) {
 			kv.cond.Broadcast()
 		}
 	}
+}
+
+//Persist snapshot. persist KV and completed requestids for duplicate check
+// Assumption is that lock will be provided by executing code
+func (kv *KVServer) persist() []byte {
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	e.Encode(kv.kvDB)
+	e.Encode(kv.completed)
+	data := w.Bytes()
+	return data
+}
+func (kv *KVServer) readPersist(kvBytes []byte) (map[string]string, map[int64]string) {
+	var kvDB map[string]string
+	var completed map[int64]string
+	r := bytes.NewBuffer(kvBytes)
+	d := labgob.NewDecoder(r)
+	if d.Decode(&kvDB) != nil ||
+		d.Decode(&completed) != nil {
+		//errors.New("Exit due to null from reading persisted data")
+		fmt.Println("Fatal Error in reading persisted KV data")
+	}
+	return kvDB, completed
 }
 
 //
@@ -259,6 +300,8 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.cond = sync.NewCond(&kv.mu)
 	kv.requests = make(map[int64]Request)
 	kv.completed = make(map[int64]string)
+	kv.persister = persister
+	kv.peers = servers
 	go kv.getMessage()
 	return kv
 }
