@@ -89,7 +89,6 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 			reply.Err = ErrNoKey
 			reply.Value = ret
 		}
-		//Add code to delete from requests delete(requests, index)
 		return
 	}
 }
@@ -127,8 +126,10 @@ func (kv *KVServer) getMessage() {
 	var oldTerm, newTerm, lastIndex int
 	for {
 		raftStateSize := kv.persister.RaftStateSize()
-		if raftStateSize > kv.maxraftstate {
+		//fmt.Println("KV: Size of snapshot: lastIndex: Server: ", raftStateSize, lastIndex, kv.me)
+		if raftStateSize > kv.maxraftstate && kv.maxraftstate != -1 {
 			kv.mu.Lock()
+			//fmt.Println("KV: Truncate log at: Server: ", lastIndex, kv.me)
 			kv.rf.TrimLog(lastIndex, kv.persist()) //TO DO: Find index of last request processed
 			kv.mu.Unlock()
 		}
@@ -137,12 +138,19 @@ func (kv *KVServer) getMessage() {
 			kvBytes := message.Command.([]byte)
 			kv.mu.Lock()
 			kv.kvDB, kv.completed = kv.readPersist(kvBytes)
+			lastIndex = message.CommandIndex
+			fmt.Println("Processed Snapshot Message: Command Index: Server:", lastIndex, kv.me)
 			kv.mu.Unlock()
+		} else if message.MessageType == 2 {
+			newTerm = message.CommandTerm
+			kv.processOldRequests(oldTerm)
+			oldTerm = newTerm
 		} else if message.MessageType == 0 {
 
 			if message.CommandValid {
 				retCommand := message.Command.(Op)
 				lastIndex = message.CommandIndex
+				//fmt.Println("Command Index: Server:", lastIndex, kv.me)
 				newTerm = message.CommandTerm
 				if newTerm != oldTerm {
 					kv.processOldRequests(oldTerm)
@@ -160,7 +168,7 @@ func (kv *KVServer) getMessage() {
 					} else {
 						kv.completed[retCommand.RequestID] = "Done"
 						kv.kvDB[retCommand.Record.Key] = retCommand.Record.Value
-						fmt.Println("KV# Put Key: Value: Server:", retCommand.Record.Key, kv.kvDB[retCommand.Record.Key], kv.me)
+						//fmt.Println("KV# Put Key: Value: Server:", retCommand.Record.Key, kv.kvDB[retCommand.Record.Key], kv.me)
 						temp := kv.requests[retCommand.RequestID]
 						temp.Status = "Done"
 						kv.requests[retCommand.RequestID] = temp
@@ -218,6 +226,7 @@ func (kv *KVServer) processOldRequests(oldTerm int) {
 		if request.Term <= oldTerm {
 			request.Status = "Resubmit"
 			kv.requests[requestID] = request
+			fmt.Println("KV: Request resubmitted: ID: Term:....", requestID, request.Term)
 			kv.cond.Broadcast()
 		}
 	}
@@ -285,15 +294,16 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	// call labgob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.
 	labgob.Register(Op{})
+	labgob.Register(PutAppendArgs{})
+	labgob.Register(PutAppendReply{})
+	labgob.Register(GetArgs{})
+	labgob.Register(GetReply{})
+	labgob.Register(KV{})
+	labgob.Register(Request{})
 
 	kv := new(KVServer)
 	kv.me = me
 	kv.maxraftstate = maxraftstate
-
-	// You may need initialization code here.
-
-	kv.applyCh = make(chan raft.ApplyMsg)
-	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
 	kv.kvDB = make(map[string]string)
@@ -302,6 +312,8 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.completed = make(map[int64]string)
 	kv.persister = persister
 	kv.peers = servers
+	kv.applyCh = make(chan raft.ApplyMsg)
+	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 	go kv.getMessage()
 	return kv
 }

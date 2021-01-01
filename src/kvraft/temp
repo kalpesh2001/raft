@@ -1,0 +1,8 @@
+else if myPrevTerm == -2000 {
+		reply.Success = false
+		rf.currentTerm = args.Term
+		rf.peerStatus = Follower
+		rf.validBeat = true
+		fmt.Println("Leader Index: out of range for Follower:", args.LeaderID, rf.me, args.PrevLogIndex, len(rf.log)-1)
+		rf.persist()
+		return

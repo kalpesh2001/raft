@@ -3,14 +3,17 @@ package kvraft
 import (
 	"../labrpc"
 	"crypto/rand"
-	"fmt"
+	//"fmt"
 	"math/big"
 	//"time"
+	"sync"
 )
 
 type Clerk struct {
 	servers   []*labrpc.ClientEnd
 	requestID int64
+	leader    int
+	mu        sync.Mutex
 	// You will have to modify this struct.
 }
 
@@ -25,6 +28,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
 	ck.requestID = nrand()
+	ck.leader = -1
 	// You'll have to add code here.
 	return ck
 }
@@ -40,19 +44,19 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 // the types of args and reply (including whether they are pointers)
 // must match the declared types of the RPC handler function's
 // arguments. and reply must be passed as a pointer.
-//
-var leader int = -1
+//var leader int = -1
 
 func (ck *Clerk) Get(key string) string {
 	ck.requestID = nrand()
 	args := GetArgs{key, " ", "Get", ck.requestID}
 	reply := GetReply{}
 	//fmt.Println("Starting Get:", key)
-	if leader != -1 {
-		ok := ck.servers[leader].Call("KVServer.Get", &args, &reply)
+	if ck.mu.Lock(); ck.leader != -1 {
+		ck.mu.Unlock()
+		ok := ck.servers[ck.leader].Call("KVServer.Get", &args, &reply)
 		if ok {
 			if reply.Err != ErrWrongLeader {
-				fmt.Println("Get Successful: ", reply.Value)
+				//fmt.Println("Get Successful: ", reply.Value)
 				return reply.Value
 			} else {
 				for {
@@ -60,8 +64,10 @@ func (ck *Clerk) Get(key string) string {
 						ok := ck.servers[i].Call("KVServer.Get", &args, &reply)
 						if ok {
 							if reply.Err != ErrWrongLeader {
-								fmt.Println("Get Successful: ", reply.Value)
-								leader = i
+								//fmt.Println("Get Successful: ", reply.Value)
+								ck.mu.Lock()
+								ck.leader = i
+								ck.mu.Unlock()
 								return reply.Value
 							}
 						}
@@ -74,8 +80,10 @@ func (ck *Clerk) Get(key string) string {
 					ok := ck.servers[i].Call("KVServer.Get", &args, &reply)
 					if ok {
 						if reply.Err != ErrWrongLeader {
-							fmt.Println("Get Successful: ", reply.Value)
-							leader = i
+							//fmt.Println("Get Successful: ", reply.Value)
+							ck.mu.Lock()
+							ck.leader = i
+							ck.mu.Unlock()
 							return reply.Value
 						}
 					}
@@ -84,13 +92,16 @@ func (ck *Clerk) Get(key string) string {
 
 		}
 	} else {
+		ck.mu.Unlock()
 		for {
 			for i := 0; i < len(ck.servers); i++ {
 				ok := ck.servers[i].Call("KVServer.Get", &args, &reply)
 				if ok {
 					if reply.Err != ErrWrongLeader {
-						fmt.Println("Get Successful: ", reply.Value)
-						leader = i
+						//fmt.Println("Get Successful: ", reply.Value)
+						ck.mu.Lock()
+						ck.leader = i
+						ck.mu.Unlock()
 						return reply.Value
 					}
 				}
@@ -111,15 +122,16 @@ func (ck *Clerk) Get(key string) string {
 //
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
-	fmt.Println("Operation Received: Op: Key: Value", op, key, value)
+	//fmt.Println("Operation Received: Op: Key: Value", op, key, value)
 	ck.requestID = nrand()
 	args := PutAppendArgs{key, value, op, ck.requestID}
 	reply := PutAppendReply{}
-	if leader != -1 {
-		ok := ck.servers[leader].Call("KVServer.PutAppend", &args, &reply)
+	if ck.mu.Lock(); ck.leader != -1 {
+		ck.mu.Unlock()
+		ok := ck.servers[ck.leader].Call("KVServer.PutAppend", &args, &reply)
 		if ok {
 			if reply.Err == OK {
-				fmt.Println("PutAppend Successful:", op, key)
+				//fmt.Println("PutAppend Successful:", op, key)
 				return
 			} else {
 				for {
@@ -127,8 +139,10 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 						ok := ck.servers[i].Call("KVServer.PutAppend", &args, &reply)
 						if ok {
 							if reply.Err == OK {
-								fmt.Println("PutAppend Successful:", op, key)
-								leader = i
+								//fmt.Println("PutAppend Successful:", op, key)
+								ck.mu.Lock()
+								ck.leader = i
+								ck.mu.Unlock()
 								return
 							}
 						}
@@ -141,8 +155,10 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 					ok := ck.servers[i].Call("KVServer.PutAppend", &args, &reply)
 					if ok {
 						if reply.Err == OK {
-							fmt.Println("PutAppend Successful:", op, key)
-							leader = i
+							//fmt.Println("PutAppend Successful:", op, key)
+							ck.mu.Lock()
+							ck.leader = i
+							ck.mu.Unlock()
 							return
 						}
 					}
@@ -150,13 +166,16 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 			}
 		}
 	} else {
+		ck.mu.Unlock()
 		for {
 			for i := 0; i < len(ck.servers); i++ {
 				ok := ck.servers[i].Call("KVServer.PutAppend", &args, &reply)
 				if ok {
 					if reply.Err == OK {
-						fmt.Println("PutAppend Successful:", op, key)
-						leader = i
+						//fmt.Println("PutAppend Successful:", op, key)
+						ck.mu.Lock()
+						ck.leader = i
+						ck.mu.Unlock()
 						return
 					}
 				}

@@ -1,0 +1,426 @@
+Test: InstallSnapshot RPC (3B) ...
+labgob warning: Decoding into a non-default variable/field Err may not work
+Didn't recieve valid beat 2
+Started leader election Server: 2
+Case: 2 Vote granted: Server: Term: To:  1 1 2
+Elected leader: Server: Term: ... Sending heartbeat 2 1
+Case: 2 Vote granted: Server: Term: To:  0 1 2
+Recevied new entry Server: Index: Value: term 2 1 {Put {a A} 982218210323976775} 1
+Starting agreement: server: index: nextval: trimIdex: 0 1 1 0
+Starting agreement: server: index: nextval: trimIdex: 1 1 1 0
+Get agreement Case 3: 0
+Get agreement Case 3: 1
+Agreement for Leader: Server: Done: nextIndex: 2 1 2
+Applying Entry: Server: Index: {{Put {a A} 982218210323976775} 1} 2 1
+Agreement for Leader: Server: Done: nextIndex: 2 0 2
+Recevied new entry Server: Index: Value: term 2 2 {Get {a  } 3402146766659107910} 1
+Starting agreement: server: index: nextval: trimIdex: 1 2 2 0
+Starting agreement: server: index: nextval: trimIdex: 0 2 2 0
+Get agreement Case 3: 1
+Get agreement Case 3: 0
+Applying Entry: Server: Index: {{Put {a A} 982218210323976775} 1} 0 1
+Agreement for Leader: Server: Done: nextIndex: 2 0 3
+Applying Entry: Server: Index: {{Get {a  } 3402146766659107910} 1} 2 2
+Applying Entry: Server: Index: {{Put {a A} 982218210323976775} 1} 1 1
+partition servers into: [0 1] [2]
+Agreement for Leader: Server: Done: nextIndex: 2 1 3
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 2
+Didn't recieve valid beat 0
+Started leader election Server: 0
+Case: 6 Vote granted: Server: Term:  1 2
+Elected leader: Server: Term: ... Sending heartbeat 0 2
+Recevied new entry Server: Index: Value: term 0 3 {Put {0 0} 842951970936655886} 2
+Starting agreement: server: index: nextval: trimIdex: 2 3 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 3 3 0
+Get agreement Case 3: 1
+Agreement for Leader: Server: Done: nextIndex: 0 1 4
+Applying Entry: Server: Index: {{Get {a  } 3402146766659107910} 1} 0 2
+Applying Entry: Server: Index: {{Put {0 0} 842951970936655886} 2} 0 3
+Recevied new entry Server: Index: Value: term 0 4 {Put {1 1} 4170013691979528300} 2
+Starting agreement: server: index: nextval: trimIdex: 2 4 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 4 4 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Get {a  } 3402146766659107910} 1} 1 2
+Agreement for Leader: Server: Done: nextIndex: 0 1 5
+Applying Entry: Server: Index: {{Put {0 0} 842951970936655886} 2} 1 3
+Applying Entry: Server: Index: {{Put {1 1} 4170013691979528300} 2} 0 4
+Recevied new entry Server: Index: Value: term 0 5 {Put {2 2} 4567821621795930392} 2
+Starting agreement: server: index: nextval: trimIdex: 2 5 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 5 5 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {1 1} 4170013691979528300} 2} 1 4
+Agreement for Leader: Server: Done: nextIndex: 0 1 6
+Applying Entry: Server: Index: {{Put {2 2} 4567821621795930392} 2} 0 5
+Recevied new entry Server: Index: Value: term 0 6 {Put {3 3} 1901802698150229502} 2
+Starting agreement: server: index: nextval: trimIdex: 2 6 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 6 6 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {2 2} 4567821621795930392} 2} 1 5
+Agreement for Leader: Server: Done: nextIndex: 0 1 7
+Applying Entry: Server: Index: {{Put {3 3} 1901802698150229502} 2} 0 6
+Recevied new entry Server: Index: Value: term 0 7 {Put {4 4} 369281506760457893} 2
+Starting agreement: server: index: nextval: trimIdex: 2 7 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 7 7 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {3 3} 1901802698150229502} 2} 1 6
+Agreement for Leader: Server: Done: nextIndex: 0 1 8
+Applying Entry: Server: Index: {{Put {4 4} 369281506760457893} 2} 0 7
+Recevied new entry Server: Index: Value: term 0 8 {Put {5 5} 3140440826957279988} 2
+Starting agreement: server: index: nextval: trimIdex: 2 8 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 8 8 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {4 4} 369281506760457893} 2} 1 7
+Agreement for Leader: Server: Done: nextIndex: 0 1 9
+Applying Entry: Server: Index: {{Put {5 5} 3140440826957279988} 2} 0 8
+Recevied new entry Server: Index: Value: term 0 9 {Put {6 6} 2636345846071932497} 2
+Starting agreement: server: index: nextval: trimIdex: 2 9 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 9 9 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {5 5} 3140440826957279988} 2} 1 8
+Agreement for Leader: Server: Done: nextIndex: 0 1 10
+Applying Entry: Server: Index: {{Put {6 6} 2636345846071932497} 2} 0 9
+Recevied new entry Server: Index: Value: term 0 10 {Put {7 7} 611343717875142243} 2
+Starting agreement: server: index: nextval: trimIdex: 1 10 10 0
+Starting agreement: server: index: nextval: trimIdex: 2 10 3 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {6 6} 2636345846071932497} 2} 1 9
+Agreement for Leader: Server: Done: nextIndex: 0 1 11
+Applying Entry: Server: Index: {{Put {7 7} 611343717875142243} 2} 0 10
+Recevied new entry Server: Index: Value: term 0 11 {Put {8 8} 3976989284473181168} 2
+Starting agreement: server: index: nextval: trimIdex: 2 11 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 11 11 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {7 7} 611343717875142243} 2} 1 10
+Agreement for Leader: Server: Done: nextIndex: 0 1 12
+Applying Entry: Server: Index: {{Put {8 8} 3976989284473181168} 2} 0 11
+Recevied new entry Server: Index: Value: term 0 12 {Put {9 9} 2009478836167436448} 2
+Starting agreement: server: index: nextval: trimIdex: 2 12 3 0
+Starting agreement: server: index: nextval: trimIdex: 1 12 12 0
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {8 8} 3976989284473181168} 2} 1 11
+Logical and Physical index before trim: 11 11
+Lengths before trim: Server:  13 1
+Agreement for Leader: Server: Done: nextIndex: 0 1 13
+Length after trim: Server:  1 1
+Applying Entry: Server: Index: {{Put {9 9} 2009478836167436448} 2} 0 12
+Logical and Physical index before trim: 12 12
+Lengths before trim: Server:  13 0
+Length after trim: Server:  0 0
+Recevied new entry Server: Index: Value: term 0 13 {Put {10 10} 4042165416208205968} 2
+Starting agreement: server: index: nextval: trimIdex: 2 13 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 13 13 12
+Case 3: Physical indexes:  0 1 14 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {9 9} 2009478836167436448} 2} 1 12
+Agreement for Leader: Server: Done: nextIndex: 0 1 14
+Applying Entry: Server: Index: {{Put {10 10} 4042165416208205968} 2} 0 13
+Recevied new entry Server: Index: Value: term 0 14 {Put {11 11} 3626482404223043960} 2
+Starting agreement: server: index: nextval: trimIdex: 2 14 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 14 14 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {10 10} 4042165416208205968} 2} 1 13
+Agreement for Leader: Server: Done: nextIndex: 0 1 15
+Applying Entry: Server: Index: {{Put {11 11} 3626482404223043960} 2} 0 14
+Recevied new entry Server: Index: Value: term 0 15 {Put {12 12} 1109941082084012938} 2
+Starting agreement: server: index: nextval: trimIdex: 2 15 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 15 15 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {11 11} 3626482404223043960} 2} 1 14
+Agreement for Leader: Server: Done: nextIndex: 0 1 16
+Applying Entry: Server: Index: {{Put {12 12} 1109941082084012938} 2} 0 15
+Recevied new entry Server: Index: Value: term 0 16 {Put {13 13} 623219019963378197} 2
+Starting agreement: server: index: nextval: trimIdex: 2 16 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 16 16 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {12 12} 1109941082084012938} 2} 1 15
+Agreement for Leader: Server: Done: nextIndex: 0 1 17
+Applying Entry: Server: Index: {{Put {13 13} 623219019963378197} 2} 0 16
+Recevied new entry Server: Index: Value: term 0 17 {Put {14 14} 1005303501995704509} 2
+Starting agreement: server: index: nextval: trimIdex: 2 17 3 12
+Starting agreement: server: index: nextval: trimIdex: 1 17 17 12
+Server: InstallSnapshot: 2
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {13 13} 623219019963378197} 2} 1 16
+Agreement for Leader: Server: Done: nextIndex: 0 1 18
+Applying Entry: Server: Index: {{Put {14 14} 1005303501995704509} 2} 0 17
+Recevied new entry Server: Index: Value: term 0 18 {Put {15 15} 3969302892363985077} 2
+Starting agreement: server: index: nextval: trimIdex: 2 18 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 18 18 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {14 14} 1005303501995704509} 2} 1 17
+Agreement for Leader: Server: Done: nextIndex: 0 1 19
+Applying Entry: Server: Index: {{Put {15 15} 3969302892363985077} 2} 0 18
+Recevied new entry Server: Index: Value: term 0 19 {Put {16 16} 214097390137364697} 2
+Starting agreement: server: index: nextval: trimIdex: 2 19 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 19 19 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {15 15} 3969302892363985077} 2} 1 18
+Agreement for Leader: Server: Done: nextIndex: 0 1 20
+Applying Entry: Server: Index: {{Put {16 16} 214097390137364697} 2} 0 19
+Recevied new entry Server: Index: Value: term 0 20 {Put {17 17} 372456498659219800} 2
+Starting agreement: server: index: nextval: trimIdex: 2 20 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 20 20 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {16 16} 214097390137364697} 2} 1 19
+Agreement for Leader: Server: Done: nextIndex: 0 1 21
+Applying Entry: Server: Index: {{Put {17 17} 372456498659219800} 2} 0 20
+Recevied new entry Server: Index: Value: term 0 21 {Put {18 18} 559959834352893064} 2
+Starting agreement: server: index: nextval: trimIdex: 2 21 3 12
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 21 21 12
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {17 17} 372456498659219800} 2} 1 20
+Agreement for Leader: Server: Done: nextIndex: 0 1 22
+Applying Entry: Server: Index: {{Put {18 18} 559959834352893064} 2} 0 21
+Recevied new entry Server: Index: Value: term 0 22 {Put {19 19} 1695221867363247729} 2
+Starting agreement: server: index: nextval: trimIdex: 1 22 22 12
+Starting agreement: server: index: nextval: trimIdex: 2 22 3 12
+Server: InstallSnapshot: 2
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {18 18} 559959834352893064} 2} 1 21
+Agreement for Leader: Server: Done: nextIndex: 0 1 23
+Applying Entry: Server: Index: {{Put {19 19} 1695221867363247729} 2} 0 22
+Logical and Physical index before trim: 21 9
+Lengths before trim: Server:  11 1
+Length after trim: Server:  1 1
+Recevied new entry Server: Index: Value: term 0 23 {Put {20 20} 3824535292175632018} 2
+Starting agreement: server: index: nextval: trimIdex: 1 23 23 12
+Starting agreement: server: index: nextval: trimIdex: 2 23 3 12
+Server: InstallSnapshot: 2
+Get agreement Case 3: 1
+Agreement for Leader: Server: Done: nextIndex: 0 1 24
+Applying Entry: Server: Index: {{Put {20 20} 3824535292175632018} 2} 0 23
+Logical and Physical index before trim: 23 10
+Lengths before trim: Server:  11 0
+Length after trim: Server:  0 0
+Applying Entry: Server: Index: {{Put {19 19} 1695221867363247729} 2} 1 22
+Recevied new entry Server: Index: Value: term 0 24 {Put {21 21} 2467587610665354633} 2
+Starting agreement: server: index: nextval: trimIdex: 2 24 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 24 24 23
+Case 3: Physical indexes:  0 1 25 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {20 20} 3824535292175632018} 2} 1 23
+Agreement for Leader: Server: Done: nextIndex: 0 1 25
+Applying Entry: Server: Index: {{Put {21 21} 2467587610665354633} 2} 0 24
+Recevied new entry Server: Index: Value: term 0 25 {Put {22 22} 2247661930221449684} 2
+Starting agreement: server: index: nextval: trimIdex: 2 25 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 25 25 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {21 21} 2467587610665354633} 2} 1 24
+Agreement for Leader: Server: Done: nextIndex: 0 1 26
+Applying Entry: Server: Index: {{Put {22 22} 2247661930221449684} 2} 0 25
+Recevied new entry Server: Index: Value: term 0 26 {Put {23 23} 3460635405398678494} 2
+Starting agreement: server: index: nextval: trimIdex: 1 26 26 23
+Starting agreement: server: index: nextval: trimIdex: 2 26 3 23
+Server: InstallSnapshot: 2
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {22 22} 2247661930221449684} 2} 1 25
+Agreement for Leader: Server: Done: nextIndex: 0 1 27
+Applying Entry: Server: Index: {{Put {23 23} 3460635405398678494} 2} 0 26
+Recevied new entry Server: Index: Value: term 0 27 {Put {24 24} 506672806146901367} 2
+Starting agreement: server: index: nextval: trimIdex: 2 27 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 27 27 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {23 23} 3460635405398678494} 2} 1 26
+Agreement for Leader: Server: Done: nextIndex: 0 1 28
+Applying Entry: Server: Index: {{Put {24 24} 506672806146901367} 2} 0 27
+Recevied new entry Server: Index: Value: term 0 28 {Put {25 25} 4297704637045975454} 2
+Starting agreement: server: index: nextval: trimIdex: 2 28 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 28 28 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {24 24} 506672806146901367} 2} 1 27
+Agreement for Leader: Server: Done: nextIndex: 0 1 29
+Applying Entry: Server: Index: {{Put {25 25} 4297704637045975454} 2} 0 28
+Recevied new entry Server: Index: Value: term 0 29 {Put {26 26} 3564209247724821679} 2
+Starting agreement: server: index: nextval: trimIdex: 2 29 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 29 29 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {25 25} 4297704637045975454} 2} 1 28
+Agreement for Leader: Server: Done: nextIndex: 0 1 30
+Applying Entry: Server: Index: {{Put {26 26} 3564209247724821679} 2} 0 29
+Recevied new entry Server: Index: Value: term 0 30 {Put {27 27} 2535203232740521279} 2
+Starting agreement: server: index: nextval: trimIdex: 2 30 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 30 30 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {26 26} 3564209247724821679} 2} 1 29
+Agreement for Leader: Server: Done: nextIndex: 0 1 31
+Applying Entry: Server: Index: {{Put {27 27} 2535203232740521279} 2} 0 30
+Recevied new entry Server: Index: Value: term 0 31 {Put {28 28} 1264690097949178123} 2
+Starting agreement: server: index: nextval: trimIdex: 2 31 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 31 31 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {27 27} 2535203232740521279} 2} 1 30
+Agreement for Leader: Server: Done: nextIndex: 0 1 32
+Applying Entry: Server: Index: {{Put {28 28} 1264690097949178123} 2} 0 31
+Recevied new entry Server: Index: Value: term 0 32 {Put {29 29} 2173820940342155517} 2
+Starting agreement: server: index: nextval: trimIdex: 2 32 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 32 32 23
+Get agreement Case 3: 1
+Applying Entry: Server: Index: {{Put {28 28} 1264690097949178123} 2} 1 31
+Logical and Physical index before trim: 31 9
+Lengths before trim: Server:  11 1
+Agreement for Leader: Server: Done: nextIndex: 0 1 33
+Length after trim: Server:  1 1
+Applying Entry: Server: Index: {{Put {29 29} 2173820940342155517} 2} 0 32
+
+Test---: Phase 1 done
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Applying Entry: Server: Index: {{Put {29 29} 2173820940342155517} 2} 1 32
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 2
+Sending heartbeat done: Server 0
+Recevied new entry Server: Index: Value: term 0 33 {Put {b B} 4572283884918071619} 2
+Starting agreement: server: index: nextval: trimIdex: 2 33 3 23
+Server: InstallSnapshot: 2
+Starting agreement: server: index: nextval: trimIdex: 1 33 33 23
+Get agreement Case 3: 1
+Agreement for Leader: Server: Done: nextIndex: 0 1 34
+Applying Entry: Server: Index: {{Put {b B} 4572283884918071619} 2} 0 33
+Test---: Phase 2 done
+partition servers into: [0 2] [1]
+Recevied new entry Server: Index: Value: term 0 34 {Put {c C} 4395687816881503155} 2
+Starting agreement: server: index: nextval: trimIdex: 1 34 34 23
+Starting agreement: server: index: nextval: trimIdex: 2 34 3 23
+Server: InstallSnapshot: 2
+Install Log:  0 23
+Next index updated: server: 24 2
+Case 3: Physical indexes:  0 11 35 23
+Processed Snapshot Message: Command Index: Server: 23 2
+Get agreement Case 3: 2
+Applying Entry: Server: Index: {{Put {21 21} 2467587610665354633} 2} 2 24
+Agreement for Leader: Server: Done: nextIndex: 0 2 35
+Applying Entry: Server: Index: {{Put {c C} 4395687816881503155} 2} 0 34
+Logical and Physical index before trim: 34 10
+Lengths before trim: Server:  11 0
+Length after trim: Server:  0 0
+Recevied new entry Server: Index: Value: term 0 35 {Put {d D} 4431920121492787924} 2
+Starting agreement: server: index: nextval: trimIdex: 2 35 35 34
+Case 3: Physical indexes:  0 1 36 34
+Starting agreement: server: index: nextval: trimIdex: 1 35 34 34
+Server: InstallSnapshot: 1
+Sending heartbeat done: Server 0
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Sending heartbeat done: Server 0
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Sending heartbeat done: Server 0
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 12
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Sending heartbeat done: Server 0
+Prevented update by stale snapshot: server: nextIndex, offset 2 35 23
+Sending heartbeat done: Server 0
+Didn't recieve valid beat 1
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Sending heartbeat done: Server 0
+Started leader election Server: 1
+Sending heartbeat done: Server 0
+signal: interrupt
+FAIL	_/Users/kalpeshpatel/mit-class/src/kvraft	7.598s
