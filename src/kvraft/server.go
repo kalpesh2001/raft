@@ -9,6 +9,7 @@ import (
 	"log"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 const Debug = 0
@@ -66,8 +67,6 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	}
 	kv.mu.Lock()
 	kv.requests[args.RequestID] = Request{term, index, "running"}
-	kv.mu.Unlock()
-	kv.mu.Lock()
 
 	for request := kv.requests[args.RequestID]; request.Status == "running"; request = kv.requests[args.RequestID] {
 		kv.cond.Wait()
@@ -102,8 +101,6 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	//fmt.Println("KV: Received: Operation: Index: Server:", args.Op, index, kv.me)
 	kv.mu.Lock()
 	kv.requests[args.RequestID] = Request{term, index, "running"}
-	kv.mu.Unlock()
-	kv.mu.Lock()
 
 	for request := kv.requests[args.RequestID]; request.Status == "running"; request = kv.requests[args.RequestID] {
 		kv.cond.Wait()
@@ -223,7 +220,7 @@ func (kv *KVServer) processOldRequests(oldTerm int) {
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 	for requestID, request := range kv.requests {
-		if request.Term <= oldTerm {
+		if request.Term <= oldTerm && request.Status == "running" {
 			request.Status = "Resubmit"
 			kv.requests[requestID] = request
 			fmt.Println("KV: Request resubmitted: ID: Term:....", requestID, request.Term)

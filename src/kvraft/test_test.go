@@ -193,7 +193,7 @@ func GenericTest(t *testing.T, part string, nclients int, unreliable bool, crash
 		clnts[i] = make(chan int)
 	}
 	for i := 0; i < 3; i++ {
-		// log.Printf("Iteration %v\n", i)
+		log.Printf("Iteration %v\n", i)
 		atomic.StoreInt32(&done_clients, 0)
 		atomic.StoreInt32(&done_partitioner, 0)
 		go spawn_clients_and_wait(t, cfg, nclients, func(cli int, myck *Clerk, t *testing.T) {
@@ -232,7 +232,7 @@ func GenericTest(t *testing.T, part string, nclients int, unreliable bool, crash
 		atomic.StoreInt32(&done_partitioner, 1) // tell partitioner to quit
 
 		if partitions {
-			// log.Printf("wait for partitioner\n")
+			log.Printf("wait for partitioner\n")
 			<-ch_partitioner
 			// reconnect network and submit a request. A client may
 			// have submitted a request in a minority.  That request
@@ -501,7 +501,7 @@ func TestUnreliableOneKey3A(t *testing.T) {
 // Submit a request in the minority partition and check that the requests
 // doesn't go through until the partition heals.  The leader in the original
 // network ends up in the minority partition.
-//fail - need to test
+//pass
 func TestOnePartition3A(t *testing.T) {
 	const nservers = 5
 	cfg := make_config(t, nservers, false, -1)
@@ -671,11 +671,11 @@ func TestSnapshotRPC3B(t *testing.T) {
 		ck1 := cfg.makeClient([]int{0, 2})
 		Put(cfg, ck1, "c", "C")
 		Put(cfg, ck1, "d", "D")
-		/**check(cfg, t, ck1, "a", "A")
+		check(cfg, t, ck1, "a", "A")
 		check(cfg, t, ck1, "b", "B")
 		check(cfg, t, ck1, "1", "1")
 		check(cfg, t, ck1, "49", "49")
-		//check(cfg, t, ck1, "20", "20") */
+		//check(cfg, t, ck1, "20", "20")
 	}
 	fmt.Println("Test---: Phase 3 done")
 	// now everybody
